@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- next-version -->
 
+## Unreleased
+
+### Added
+
+- render local PNG, JPEG, GIF, and WebP images in the interactive Kitty TUI with background decoding and scroll-aware placement
+- retain readable image placeholders for unsupported terminals, invalid images, tables, footnotes, and `--inline` output
+
 ## [[1.28.2](https://github.com/RivoLink/leaf/releases/tag/1.28.2)] - 2026-09-14
 
 ### Docs
