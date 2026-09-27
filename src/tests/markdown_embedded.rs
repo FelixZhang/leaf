@@ -74,6 +74,90 @@ fn inline_latex_is_searchable() {
 }
 
 #[test]
+fn superscript_fallback_keeps_caret() {
+    let (ss, theme) = test_assets();
+    let (lines, _, _, _) = parse_markdown(
+        "$n^{1-\\varepsilon}$\n",
+        &ss,
+        &theme,
+        &test_md_theme(),
+        false,
+        true,
+    )
+    .into();
+    let rendered: Vec<String> = lines.iter().map(line_plain_text).collect();
+
+    assert!(
+        rendered.iter().any(|line| line.contains("n^(1−ε)")),
+        "exponent without a superscript form should keep the caret, got {rendered:?}"
+    );
+}
+
+#[test]
+fn subscript_fallback_keeps_underscore() {
+    let (ss, theme) = test_assets();
+    let (lines, _, _, _) = parse_markdown(
+        "$x_{n\\to\\infty}$\n",
+        &ss,
+        &theme,
+        &test_md_theme(),
+        false,
+        true,
+    )
+    .into();
+    let rendered: Vec<String> = lines.iter().map(line_plain_text).collect();
+
+    assert!(
+        rendered.iter().any(|line| line.contains("x_(n→∞)")),
+        "index without a subscript form should keep the underscore, got {rendered:?}"
+    );
+}
+
+#[test]
+fn nested_script_fallback_keeps_both_markers() {
+    let (ss, theme) = test_assets();
+    let (lines, _, _, _) = parse_markdown(
+        "$e^{i\\pi}$ $\\int_{0}^{\\infty}$\n",
+        &ss,
+        &theme,
+        &test_md_theme(),
+        false,
+        true,
+    )
+    .into();
+    let rendered: Vec<String> = lines.iter().map(line_plain_text).collect();
+
+    assert!(
+        rendered
+            .iter()
+            .any(|line| line.contains("e^(iπ)") && line.contains("∫₀^(∞)")),
+        "fallback must not read as multiplication or function application, got {rendered:?}"
+    );
+}
+
+#[test]
+fn convertible_scripts_stay_unicode() {
+    let (ss, theme) = test_assets();
+    let (lines, _, _, _) = parse_markdown(
+        "$n^{abc}$ $x_{max}$ $n^{3}$\n",
+        &ss,
+        &theme,
+        &test_md_theme(),
+        false,
+        true,
+    )
+    .into();
+    let rendered: Vec<String> = lines.iter().map(line_plain_text).collect();
+
+    assert!(
+        rendered
+            .iter()
+            .any(|line| line.contains("nᵃᵇᶜ") && line.contains("xₘₐₓ") && line.contains("n³")),
+        "scripts with a Unicode form should not fall back, got {rendered:?}"
+    );
+}
+
+#[test]
 fn display_latex_in_blockquote_has_quote_prefix() {
     let (ss, theme) = test_assets();
     let (lines, _, _, _) =
