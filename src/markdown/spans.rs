@@ -6,7 +6,7 @@ use ratatui::{
 };
 
 use super::latex;
-use super::LINK_MARKER;
+use super::with_link_marker;
 
 #[derive(Clone, Copy, Default)]
 pub(super) struct InlineStyleState {
@@ -299,15 +299,17 @@ pub(super) fn push_link_marker(
     if blockquote_depth > 0 {
         style = style.add_modifier(Modifier::ITALIC);
     }
-    spans.push(Span::styled(LINK_MARKER, style));
+    with_link_marker(|m| spans.push(Span::styled(m.to_string(), style)));
 }
 
 pub(super) fn update_link_marker_modifier(spans: &mut [Span<'static>], modifier: Modifier) {
-    if let Some(span) = spans
-        .iter_mut()
-        .rev()
-        .find(|s| s.content.as_ref() == LINK_MARKER)
-    {
-        span.style = span.style.add_modifier(modifier);
-    }
+    with_link_marker(|marker| {
+        if let Some(span) = spans
+            .iter_mut()
+            .rev()
+            .find(|s| s.content.as_ref() == marker)
+        {
+            span.style = span.style.add_modifier(modifier);
+        }
+    });
 }

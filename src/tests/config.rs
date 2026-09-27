@@ -323,3 +323,23 @@ fn resolve_main_line_numbers_env_var_override() {
     assert!(test_resolve_main_line_numbers(Some(true)));
     std::env::remove_var("LEAF_MAIN_LINE_NUMBERS");
 }
+
+#[test]
+fn parse_hyper_link_prefix() {
+    let config: LeafConfig = toml::from_str(r#"hyper-link-prefix = """#).unwrap();
+    assert_eq!(config.hyper_link_prefix.as_deref(), Some(""));
+    let config: LeafConfig = toml::from_str(r#"hyper-link-prefix = "→""#).unwrap();
+    assert_eq!(config.hyper_link_prefix.as_deref(), Some("→"));
+}
+
+#[test]
+fn validate_hyper_link_prefix_graphemes() {
+    use crate::config::is_valid_hyper_link_prefix;
+    assert!(is_valid_hyper_link_prefix(""));
+    assert!(is_valid_hyper_link_prefix("#"));
+    assert!(is_valid_hyper_link_prefix("→"));
+    assert!(is_valid_hyper_link_prefix("e\u{0301}"));
+    assert!(!is_valid_hyper_link_prefix("ab"));
+    assert!(!is_valid_hyper_link_prefix(" "));
+    assert!(!is_valid_hyper_link_prefix("→→"));
+}

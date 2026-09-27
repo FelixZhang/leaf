@@ -58,7 +58,7 @@ impl CellFragment {
                 t.clone()
             }
             CellFragment::InlineMath(t, _) => latex::to_unicode(t),
-            CellFragment::LinkMarker(_) => super::LINK_MARKER.to_string(),
+            CellFragment::LinkMarker(_) => super::with_link_marker(|m| m.to_string()),
             CellFragment::HardBreak => String::new(),
         }
     }

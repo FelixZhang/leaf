@@ -49,14 +49,24 @@ pub(super) fn push_wrapped_prefixed_lines(
                         body_started: &mut bool,
                         current_width: &mut usize| {
         if *body_started {
+            let keep = current_prefix
+                .iter()
+                .rposition(|s| !s.content.is_empty())
+                .map_or(0, |i| i + 1);
+            let carried = current_prefix.split_off(keep);
             lines.push(Line::from(std::mem::take(current_prefix)));
             *current_prefix = next_prefix.clone();
+            current_prefix.extend(carried);
             *body_started = false;
             *current_width = 0;
         }
     };
 
     for span in body_spans.drain(..) {
+        if span.content.is_empty() {
+            current_prefix.push(span);
+            continue;
+        }
         let style = span.style;
         let mut token = String::new();
         let mut token_is_space = false;

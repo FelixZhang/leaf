@@ -26,16 +26,14 @@ pub(super) fn is_code_gutter_span(content: &str) -> bool {
     }
 }
 
-pub(crate) fn line_searchable_text(line: &Line<'_>) -> String {
-    use super::LINK_MARKER;
-
-    fn collect_filtered(spans: &[ratatui::text::Span<'_>]) -> String {
+fn line_searchable_text(line: &Line<'_>, marker: &str) -> String {
+    let collect_filtered = |spans: &[ratatui::text::Span<'_>]| -> String {
         spans
             .iter()
-            .filter(|s| s.content.as_ref() != LINK_MARKER)
+            .filter(|s| s.content.as_ref() != marker)
             .map(|s| s.content.as_ref())
             .collect()
-    }
+    };
 
     let spans = &line.spans;
     let has_pipe = spans.iter().take(4).any(|s| s.content.contains('│'));
@@ -66,7 +64,12 @@ pub(crate) fn line_searchable_text(line: &Line<'_>) -> String {
 }
 
 pub(crate) fn build_searchable_lines(lines: &[Line<'_>]) -> Vec<String> {
-    lines.iter().map(line_searchable_text).collect()
+    super::with_link_marker(|marker| {
+        lines
+            .iter()
+            .map(|line| line_searchable_text(line, marker))
+            .collect()
+    })
 }
 
 pub(crate) fn truncate_display_width(text: &str, max_width: usize) -> String {

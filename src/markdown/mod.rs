@@ -61,7 +61,22 @@ use spans::{
     push_inline_latex_span, push_mark_span, HtmlBufferKind, HtmlTagOutcome, InlineStyleState,
 };
 
-const LINK_MARKER: &str = "#";
+pub(crate) const DEFAULT_LINK_MARKER: &str = "#";
+
+thread_local! {
+    static LINK_MARKER: std::cell::RefCell<String> =
+        std::cell::RefCell::new(DEFAULT_LINK_MARKER.to_string());
+}
+
+pub(crate) fn with_link_marker<R>(f: impl FnOnce(&str) -> R) -> R {
+    LINK_MARKER.with(|c| f(&c.borrow()))
+}
+
+pub(crate) fn set_link_marker(marker: &str) {
+    LINK_MARKER.with(|c| {
+        c.borrow_mut().replace_range(.., marker);
+    });
+}
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub(super) enum LastBlock {
