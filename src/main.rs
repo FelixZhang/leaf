@@ -296,6 +296,9 @@ fn main() -> Result<()> {
     let tab_title_length = resolve_tab_title_length_n(user_config.tab_title_length);
     let tab_title_max_filename_len = tab_title_length.and_then(tab_title_n_to_max_filename_len);
     let file_picker_width = resolve_file_picker_width(user_config.file_picker_width);
+    if let Some(prefix) = &user_config.hyper_link_prefix {
+        markdown::set_link_marker(prefix);
+    }
 
     let raw_file_history_length = user_config.file_history_length.unwrap_or(0);
     let mut history_clamped_from: Option<i32> = None;

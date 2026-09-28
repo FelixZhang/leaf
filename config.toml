@@ -104,3 +104,8 @@ watch = false
 # Maximum accepted: 50. Values above are clamped.
 # Default: 0 (disables history recording)
 # file-history-length = 0
+
+# Prefix shown before Markdown link text, like #leaf for [leaf](url)
+# Any single non-space character. Set to "" to show no prefix.
+# Default: "#"
+# hyper-link-prefix = "#"
